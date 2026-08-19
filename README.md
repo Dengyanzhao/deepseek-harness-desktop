@@ -13,7 +13,7 @@
 
 ## 下载
 
-前往 [Releases](https://github.com/OWNER/deepseek-harness-desktop/releases) 下载:
+前往 [Releases](https://github.com/Dengyanzhao/deepseek-harness-desktop/releases) 下载:
 
 | 文件 | 说明 |
 |---|---|
