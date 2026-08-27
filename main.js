@@ -21,6 +21,8 @@ const gotLock = app.requestSingleInstanceLock();
 if (!gotLock) {
   app.quit();
 } else {
+  // 禁用系统代理:渲染进程只需连 localhost,走代理会拦截 fetch/WebSocket 导致 Failed to fetch
+  app.commandLine.appendSwitch('no-proxy-server');
   app.on('second-instance', () => showMainWindow());
   app.whenReady().then(onReady);
 }
@@ -74,6 +76,7 @@ function spawnDsh(runtimeDir) {
   const args = [
     dshEntry(runtimeDir),
     '--profile', 'web',
+    '--no-open',
     '--host', HOST,
     '--port', String(PORT),
     '--trusted-host', 'localhost',
@@ -139,8 +142,30 @@ function createWindow() {
     },
   });
 
-  // 先显示启动提示页,服务就绪后再加载正式 UI
-  mainWindow.loadURL('data:text/html,<meta charset="utf-8"><body style="font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;background:#0d1117;color:#e6edf3;margin:0"><h2 style="font-weight:400">正在启动 DeepSeek Harness…</h2></body>');
+  // 先显示启动画面,带动画和 Logo,服务就绪后再加载正式 UI
+  mainWindow.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(`
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:linear-gradient(135deg,#0d1117 0%,#161b22 100%);color:#e6edf3;font-family:system-ui,-apple-system,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;user-select:none;overflow:hidden}
+.logo{font-size:72px;line-height:1;animation:fadeIn 0.8s ease-out}
+.logo-text{font-size:28px;font-weight:600;margin-top:20px;letter-spacing:0.5px;animation:fadeIn 0.8s ease-out 0.2s both}
+.subtitle{font-size:14px;color:#8b949e;margin-top:8px;animation:fadeIn 0.8s ease-out 0.4s both}
+.spinner{margin-top:40px;width:32px;height:32px;border:3px solid #30363d;border-top-color:#58a6ff;border-radius:50%;animation:spin .8s linear infinite,fadeIn 0.8s ease-out 0.6s both}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="logo">🐋</div>
+<div class="logo-text">DeepSeek Harness</div>
+<div class="subtitle">正在启动…</div>
+<div class="spinner"></div>
+</body>
+</html>`));
   mainWindow.once('ready-to-show', () => mainWindow.show());
 
   waitForServer(() => {
