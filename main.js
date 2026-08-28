@@ -142,30 +142,42 @@ function createWindow() {
     },
   });
 
-  // 先显示启动画面,带动画和 Logo,服务就绪后再加载正式 UI
+  // 先显示启动画面(深海声呐主题),服务就绪后再加载正式 UI
   mainWindow.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(`
 <!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<style>
+<html><head><meta charset="utf-8"><style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:linear-gradient(135deg,#0d1117 0%,#161b22 100%);color:#e6edf3;font-family:system-ui,-apple-system,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;user-select:none;overflow:hidden}
-.logo{font-size:72px;line-height:1;animation:fadeIn 0.8s ease-out}
-.logo-text{font-size:28px;font-weight:600;margin-top:20px;letter-spacing:0.5px;animation:fadeIn 0.8s ease-out 0.2s both}
-.subtitle{font-size:14px;color:#8b949e;margin-top:8px;animation:fadeIn 0.8s ease-out 0.4s both}
-.spinner{margin-top:40px;width:32px;height:32px;border:3px solid #30363d;border-top-color:#58a6ff;border-radius:50%;animation:spin .8s linear infinite,fadeIn 0.8s ease-out 0.6s both}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-</style>
-</head>
-<body>
-<div class="logo">🐋</div>
-<div class="logo-text">DeepSeek Harness</div>
-<div class="subtitle">正在启动…</div>
-<div class="spinner"></div>
-</body>
-</html>`));
+body{background:linear-gradient(180deg,#0a1626 0%,#050a12 60%,#030507 100%);color:#e6edf3;font-family:system-ui,'Segoe UI',sans-serif;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;user-select:none}
+.scene{position:relative;width:220px;height:220px;display:flex;align-items:center;justify-content:center}
+.wave{position:absolute;width:120px;height:120px;border-radius:50%;border:1px solid rgba(88,166,255,0.5);animation:sonar 3.6s ease-out infinite;opacity:0}
+.wave:nth-child(2){animation-delay:1.2s}
+.wave:nth-child(3){animation-delay:2.4s}
+@keyframes sonar{0%{transform:scale(0.5);opacity:0.7}100%{transform:scale(2.6);opacity:0}}
+.whale{font-size:64px;animation:swim 5s ease-in-out infinite;filter:drop-shadow(0 6px 24px rgba(20,90,180,0.55))}
+@keyframes swim{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-12px) rotate(3deg)}}
+.bubbles{position:absolute;bottom:0;left:0;right:0;height:42vh;pointer-events:none}
+.bub{position:absolute;bottom:0;border-radius:50%;background:rgba(120,180,255,0.22);animation:rise linear infinite}
+@keyframes rise{0%{transform:translateY(0);opacity:0}15%{opacity:0.7}100%{transform:translateY(-44vh);opacity:0}}
+.title{margin-top:8px;font-size:24px;font-weight:600;letter-spacing:3px}
+.title span{opacity:0;animation:tin 0.5s ease-out forwards}
+@keyframes tin{to{opacity:1}}
+.status{margin-top:14px;font-size:12px;color:#3d4a63;letter-spacing:2px;animation:blink 2.4s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:0.35}50%{opacity:1}}
+</style></head><body>
+<div class="bubbles" id="bub"></div>
+<div class="scene">
+<div class="wave"></div><div class="wave"></div><div class="wave"></div>
+<div class="whale">🐋</div>
+</div>
+<div class="title" id="t"></div>
+<div class="status">正在启动 · DEEP DIVE</div>
+<script>
+var s='DeepSeek Harness',h='';for(var i=0;i<s.length;i++){h+='<span style="animation-delay:'+(0.3+i*0.08)+'s">'+(s[i]==' '?'&nbsp;':s[i])+'</span>'}
+document.getElementById('t').innerHTML=h;
+var b='';for(var i=0;i<9;i++){b+='<div class="bub" style="left:'+(8+i*10+Math.random()*6)+'%;animation-duration:'+(6+Math.random()*6)+'s;animation-delay:'+(Math.random()*7)+'s;width:'+(3+Math.random()*5)+'px;height:'+(3+Math.random()*5)+'px"></div>'}
+document.getElementById('bub').innerHTML=b;
+</script>
+</body></html>`));
   mainWindow.once('ready-to-show', () => mainWindow.show());
 
   waitForServer(() => {
